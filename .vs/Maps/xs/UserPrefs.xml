@@ -1,0 +1,33 @@
+﻿<Properties StartupConfiguration="{FBC5BE72-1F12-C80A-2CF0-6947C9FF5FE8}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/InteractableObjects/MovableObject.cs">
+    <Files>
+      <File FileName="Assets/Scripts/GridMovement.cs" Line="35" Column="53" />
+      <File FileName="Assets/Scripts/Player/PlayerController.cs" Line="23" Column="24" />
+      <File FileName="Assets/Scripts/InteractableObjects/MovableObject.cs" Line="240" Column="27" />
+      <File FileName="Assets/Scripts/InteractableObjects/InteractableObject.cs" Line="8" Column="25" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Maps" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="InteractableObjects" expanded="True">
+                  <Node name="MovableObject.cs" selected="True" />
+                </Node>
+                <Node name="Player" expanded="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4ffba7ef-6674-4990-a7c9-81dead92690f" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
