@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 5585346147927747515}
   - component: {fileID: 6830832149033496344}
   - component: {fileID: 4967636217437601361}
-  - component: {fileID: 2159908799482430422}
+  - component: {fileID: 7143726325282084983}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -602,6 +602,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactEnabled: 1
   allowStack: 0
+  gravityY: -9.8
+  objectMass: 1
   canClimb: 1
   canDescend: 1
   canFall: 0
@@ -610,9 +612,10 @@ MonoBehaviour:
   shouldRotate: 1
   walkableOnly: 1
   fallThreshold: 0.5
-  yPivotAdjust: 0
+  frontCollisionHeight: 0.9
   appliedForce: 1
   speed: 5
+  moveTolerance: 0.09
 --- !u!114 &4967636217437601361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,22 +628,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ea20632f7dfd444e85ccabaadf24fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!54 &2159908799482430422
-Rigidbody:
+--- !u!143 &7143726325282084983
+CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7000626545497380054}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
   serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
+  m_Height: 1.1
+  m_Radius: 0.4
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9110120798299140518
 GameObject:
   m_ObjectHideFlags: 0

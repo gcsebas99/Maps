@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,7 +13,7 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
   private static readonly int interactableLayerMask = 1 << 10; //hit interactable objects only
   public float gravityY = -9.8f;
   public float objectMass = 1.0f;
-  public bool showGravityDebug = false;
+  //public bool showGravityDebug = false;
 
   //constants
   private static float nextPositionRayLengthAddition = 1.0f; //how much (below ground) should ray test for next position
@@ -54,7 +55,7 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
 
   //speed & taolerance
   public float speed = 5f; //moving speed
-  private float moveTolerance = 0.09f;
+  public float moveTolerance = 0.07f;
 
   //controller
   private CharacterController controller;
@@ -107,6 +108,10 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
       case Direction.Right: currentDirection = right; testPosition += Vector3.right; break;
       case Direction.Left: currentDirection = left; testPosition += Vector3.left; break;
     }
+
+    //adjust to .5 position
+    testPosition.x = (float)Math.Round(testPosition.x * 2) / 2;
+    testPosition.z = (float)Math.Round(testPosition.z * 2) / 2;
 
     //rotation
     if(shouldRotate) {
@@ -206,7 +211,6 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
 
 
     //enqueue movement
-    //Debug.Log("Moving from " + standingGroundType + " to " + targetGroundType);
     pendingMovements.Enqueue(testPosition);
 
     resolvingAttempt = false;
@@ -251,31 +255,40 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
   }
 
   void MoveToPoint() {
-    if(currentDestination == transform.position && controller.isGrounded)
+    if((Vector3.Distance(currentDestination, transform.position) <= moveTolerance) && controller.isGrounded) {
       return;
+    }
+    //if(currentDestination == transform.position && controller.isGrounded) {
+    //  return;
+    //}
 
     Vector3 moveDiff = currentDestination - transform.position;
     Vector3 moveDir = moveDiff.normalized * speed * Time.fixedDeltaTime;
 
-    //Vector3 grav = Physics.gravity;
-    Vector3 grav = new Vector3(0, gravityY * objectMass, 0);
+    //Vector3 grav = Physics.gravity * objectMass * Time.fixedDeltaTime;
+    Vector3 grav = new Vector3(0, gravityY * objectMass * Time.fixedDeltaTime, 0);
 
     if(moveDir.sqrMagnitude < moveDiff.sqrMagnitude) {
       //add gravity
       if(!controller.isGrounded) {
         moveDir += grav;
-        if(showGravityDebug) {
-          Debug.Log("gravity1: " + grav + " moveDir: " + moveDir);
-        }
+        //if(showGravityDebug) {
+        //  Debug.Log("gravity1: " + grav + " moveDir: " + moveDir);
+        //}
       }
+      Debug.Log("Moving to: " + currentDestination);
       controller.Move(moveDir);
     } else {
+
+      moveDiff = moveDiff * speed * Time.fixedDeltaTime;
+
       if(!controller.isGrounded) {
         moveDiff += grav;
-        if(showGravityDebug) {
-          Debug.Log("gravity2: " + grav + " moveDiff: " + moveDiff);
-        }
+        //if(showGravityDebug) {
+        //  Debug.Log("gravity2: " + grav + " moveDiff: " + moveDiff);
+        //}
       }
+      Debug.Log("Moving to: " + currentDestination);
       controller.Move(moveDiff);
     }
   }

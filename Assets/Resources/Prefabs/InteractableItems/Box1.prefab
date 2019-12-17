@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23360817484253358}
   - component: {fileID: 2475723721012728705}
   - component: {fileID: 7627353771306440092}
+  - component: {fileID: 3011747391533667533}
   m_Layer: 10
   m_Name: Mod_SmallCrate01
   m_TagString: Untagged
@@ -96,8 +97,7 @@ MonoBehaviour:
   interactEnabled: 1
   allowStack: 1
   gravityY: -9.8
-  objectMass: 1
-  showGravityDebug: 0
+  objectMass: 0.5
   canClimb: 0
   canDescend: 0
   canFall: 1
@@ -109,6 +109,7 @@ MonoBehaviour:
   frontCollisionHeight: 0.9
   appliedForce: 0
   speed: 5
+  moveTolerance: 0.03
 --- !u!65 &7627353771306440092
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -122,6 +123,24 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.7, y: 0.7, z: 0.7}
   m_Center: {x: 0.001859054, y: 0.34074253, z: 0.0005708337}
+--- !u!143 &3011747391533667533
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1163125825662806}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 0
+  m_Radius: 0.3
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.32, z: 0}
 --- !u!1 &1519524666773970
 GameObject:
   m_ObjectHideFlags: 0
