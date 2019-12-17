@@ -11,9 +11,6 @@ GameObject:
   - component: {fileID: 4328863151654654}
   - component: {fileID: 33448333169070208}
   - component: {fileID: 23360817484253358}
-  - component: {fileID: 2475723721012728705}
-  - component: {fileID: 7627353771306440092}
-  - component: {fileID: 3011747391533667533}
   m_Layer: 10
   m_Name: Mod_SmallCrate01
   m_TagString: Untagged
@@ -82,65 +79,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2475723721012728705
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163125825662806}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c6502af9e73a4cb38eeab426fae4d1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactEnabled: 1
-  allowStack: 1
-  gravityY: -9.8
-  objectMass: 0.5
-  canClimb: 0
-  canDescend: 0
-  canFall: 1
-  allowTransfer: 1
-  allowStick: 1
-  shouldRotate: 0
-  walkableOnly: 0
-  fallThreshold: 0.5
-  frontCollisionHeight: 0.9
-  appliedForce: 0
-  speed: 5
-  moveTolerance: 0.03
---- !u!65 &7627353771306440092
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163125825662806}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.7, y: 0.7, z: 0.7}
-  m_Center: {x: 0.001859054, y: 0.34074253, z: 0.0005708337}
---- !u!143 &3011747391533667533
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163125825662806}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 0
-  m_Radius: 0.3
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.32, z: 0}
 --- !u!1 &1519524666773970
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,6 +88,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4783235064262234}
+  - component: {fileID: 8806104353147161036}
+  - component: {fileID: 241820698814966697}
+  - component: {fileID: 3495084785329795603}
   m_Layer: 10
   m_Name: Box1
   m_TagString: Untagged
@@ -172,3 +113,62 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8806104353147161036
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519524666773970}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.7, y: 0.7, z: 0.7}
+  m_Center: {x: 0.001859054, y: 0.3407425, z: 0.0005708337}
+--- !u!143 &241820698814966697
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519524666773970}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 0
+  m_Radius: 0.3
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.32, z: 0}
+--- !u!114 &3495084785329795603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519524666773970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c6502af9e73a4cb38eeab426fae4d1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactEnabled: 1
+  allowStack: 1
+  gravityY: -9.8
+  objectMass: 0.5
+  canClimb: 0
+  canDescend: 0
+  canFall: 1
+  allowTransfer: 1
+  allowStick: 1
+  shouldRotate: 0
+  walkableOnly: 0
+  fallThreshold: 0.5
+  frontCollisionHeight: 0.9
+  appliedForce: 0
+  speed: 5
+  moveTolerance: 0.01
