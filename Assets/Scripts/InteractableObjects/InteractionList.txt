@@ -1,0 +1,10 @@
+﻿[Interaction List]
+
+-Movement
+    -Fill a path
+    -Remove obstacle
+    -Push/Release trigger (investigate triggers)
+    -Break/reveal floor
+    -Turn path by steping on tiles in order
+
+-Entrance (investigate triggers)
