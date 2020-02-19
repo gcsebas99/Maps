@@ -22,15 +22,9 @@ public class MapEnd : InteractableObject {
     isColliding = false;
   }
 
-  // Update is called once per frame
-  //void Update() {
-
-  //}
-
   private void OnTriggerEnter(Collider other) {
     if(!isColliding) {
       if(InteractableObjectsUtils.CollideWithPlayer(other)) {
-        Debug.Log("||--Entering PLAYER " + other.transform.name);
         isColliding = true;
         world.MovePlayerToLevel(moveToLevel);
       }
@@ -38,13 +32,8 @@ public class MapEnd : InteractableObject {
 
   }
 
-  //private void OnTriggerStay(Collider other) {
-
-  //}
-
   private void OnTriggerExit(Collider other) {
     if(InteractableObjectsUtils.CollideWithPlayer(other)) {
-      Debug.Log("||--Exit " + other.transform.name);
       isColliding = false;
     }
   }
