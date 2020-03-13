@@ -8,9 +8,10 @@ public class WorldController : MonoBehaviour {
   public static float Gravity { get; private set; } = -9.8f;
 
   //layer detection
-  public static readonly int TerrainLayerMask = 1 << 8; //hit terrain only
-  public static readonly int StaticLayerMask = 1 << 9; //hit static objects only
-  public static readonly int InteractableLayerMask = 1 << 10; //hit interactive objects only
+  public static readonly int StaticTerrainLayerMask = 1 << 8;
+  public static readonly int StaticObjectLayerMask = 1 << 9;
+  public static readonly int IOPhysicalLayerMask = 1 << 10;
+  public static readonly int IONoPhysicalLayerMask = 1 << 11;
 
   //instance
   public static WorldController Instance { get; private set; }

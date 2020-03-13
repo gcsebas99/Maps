@@ -11,18 +11,16 @@ public class CameraFollow : MonoBehaviour {
   private Vector3 pivotPosition;
   private bool following;
 
-  //private Vector3 lastTargetPosition;
-
   private void Start() {
     pivotPosition = target.position;
     transform.position = pivotPosition + offset;
+    transform.rotation = Quaternion.Euler(new Vector3(45, 0, 0));
     following = false;
   }
 
   private void FixedUpdate() {
     if(enabled) {
       float distance = Vector3.Distance(pivotPosition, target.position);
-      //Debug.Log("pivot: " + pivotPosition + "distance: " + distance);
       if(distance > distanceBeforeFollow) {
         following = true;
       }
@@ -30,12 +28,9 @@ public class CameraFollow : MonoBehaviour {
         following = false;
       }
       if(following) {
-
         Vector3 desiredPosition = target.position + offset;
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-
         transform.position = smoothedPosition;
-
         pivotPosition = smoothedPosition - offset;
         //transform.LookAt(target);
       }

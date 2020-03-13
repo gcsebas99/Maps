@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1163125825662806}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.3, y: 1.4, z: 1.3}
   m_Children: []
   m_Father: {fileID: 4783235064262234}
   m_RootOrder: 0
@@ -124,8 +124,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.7, y: 0.7, z: 0.7}
-  m_Center: {x: 0.001859054, y: 0.3407425, z: 0.0005708337}
+  m_Size: {x: 0.84, y: 0.84, z: 0.84}
+  m_Center: {x: 0, y: 0.44, z: 0}
 --- !u!143 &241820698814966697
 CharacterController:
   m_ObjectHideFlags: 0
@@ -138,12 +138,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 0
-  m_Radius: 0.3
+  m_Radius: 0.43
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.32, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &3495084785329795603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,8 +158,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactEnabled: 1
   allowStack: 1
-  gravityY: -9.8
-  objectMass: 0.5
+  interactions: {fileID: 0}
+  objectMass: 1
+  objectWeight: 0.5
+  terrainOffsetAllowedDistance: 0.15
+  interactiveOffsetDetection: 0.4
   canClimb: 0
   canDescend: 0
   canFall: 1
@@ -169,6 +172,8 @@ MonoBehaviour:
   walkableOnly: 0
   fallThreshold: 0.5
   frontCollisionHeight: 0.9
+  movableRayOffsetYIncrement: 0.7
   appliedForce: 0
   speed: 5
+  driveSpeed: 2.5
   moveTolerance: 0.01

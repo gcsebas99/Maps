@@ -24,7 +24,8 @@ public class MapEnd : InteractableObject {
 
   private void OnTriggerEnter(Collider other) {
     if(!isColliding) {
-      if(InteractableObjectsUtils.CollideWithPlayer(other)) {
+      GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(other.gameObject);
+      if(InteractableObjectsUtils.CollideWithPlayer(ioObject)) {
         isColliding = true;
         world.MovePlayerToLevel(moveToLevel);
       }
@@ -33,7 +34,8 @@ public class MapEnd : InteractableObject {
   }
 
   private void OnTriggerExit(Collider other) {
-    if(InteractableObjectsUtils.CollideWithPlayer(other)) {
+    GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(other.gameObject);
+    if(InteractableObjectsUtils.CollideWithPlayer(ioObject)) {
       isColliding = false;
     }
   }

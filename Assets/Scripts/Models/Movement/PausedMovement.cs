@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using ConstantsAndEnums;
 
 public class PausedMovement {
   public Vector3 pausedPosition;
-  public MovableObject.Direction pausedDirection;
+  public Direction pausedDirection;
 }

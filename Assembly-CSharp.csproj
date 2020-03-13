@@ -63,30 +63,45 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Behaviours\ObjectCollector.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraFollow.cs" />
+    <Compile Include="Assets\Scripts\Controllers\InteractionController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\WorldController.cs" />
     <Compile Include="Assets\Scripts\GridMovement.cs" />
+    <Compile Include="Assets\Scripts\InteractableObjects\CollectableObject.cs" />
     <Compile Include="Assets\Scripts\InteractableObjects\InteractableObject.cs" />
+    <Compile Include="Assets\Scripts\InteractableObjects\InteractableObjectDelegation.cs" />
+    <Compile Include="Assets\Scripts\InteractableObjects\MapEnd.cs" />
     <Compile Include="Assets\Scripts\InteractableObjects\MovableObject.cs" />
+    <Compile Include="Assets\Scripts\InteractableObjects\PhysicalObject.cs" />
+    <Compile Include="Assets\Scripts\InteractableObjects\WeightTrigger.cs" />
     <Compile Include="Assets\Scripts\MapGenerator.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\Layer.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\Map.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\MapCollection.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\MapItem.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\MapItemOffset.cs" />
-    <Compile Include="Assets\Scripts\MapGeneratorModels\MapTile.cs" />
     <Compile Include="Assets\Scripts\MapGeneratorUtilites.cs" />
     <Compile Include="Assets\Scripts\MapSystem.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\Layer.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\Map.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\MapCollection.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\MapItem.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\MapItemOffset.cs" />
+    <Compile Include="Assets\Scripts\Models\MapGenerator\MapTile.cs" />
+    <Compile Include="Assets\Scripts\Models\Movement\PausedMovement.cs" />
+    <Compile Include="Assets\Scripts\Models\Movement\PendingMovement.cs" />
+    <Compile Include="Assets\Scripts\Others\MapChanger.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\PlayerControllerOld.cs" />
     <Compile Include="Assets\Scripts\PrefabsData\ItemPrefabData.cs" />
     <Compile Include="Assets\Scripts\PrefabsData\TerrainPrefabData.cs" />
     <Compile Include="Assets\Scripts\TerrainMovementUtilities.cs" />
+    <Compile Include="Assets\Scripts\Utils\ConstantsAndEnums.cs" />
+    <Compile Include="Assets\Scripts\Utils\InteractableObjectsUtils.cs" />
+    <Compile Include="Assets\Scripts\Utils\SurroundingUtils.cs" />
     <None Include="Assets\DANKIE\UltimateHatPack\Party\_Shared\Shaders\DankDoubleSided.shader" />
     <None Include="Assets\DANKIE\UltimateHatPack\Party\Readme_DANKIE-UltimateHatCollection.txt" />
     <None Include="Assets\Crates And Barrels Pack Volume 1 - Free Version\manual.txt" />
     <None Include="Assets\Shaders\Tri-Planar World.shader" />
     <None Include="Assets\BrokenVector\FreeLowPolyPack\readme.txt" />
+    <None Include="Assets\Scripts\InteractableObjects\InteractionList.txt" />
     <None Include="Assets\read me.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>/Users/sebastian/UnityProjects/Maps/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

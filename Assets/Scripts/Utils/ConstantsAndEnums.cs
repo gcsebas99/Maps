@@ -2,6 +2,9 @@
 using UnityEngine;
 
 namespace ConstantsAndEnums {
+  //interactable delegation reference
+  public enum DelegationReference { Parent };
+
   //allowed directions
   public enum Direction { Up, Down, Right, Left };
 

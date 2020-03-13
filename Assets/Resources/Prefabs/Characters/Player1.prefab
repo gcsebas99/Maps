@@ -12,8 +12,7 @@ GameObject:
   - component: {fileID: 4564370898835988339}
   - component: {fileID: 1984396195917979086}
   - component: {fileID: 1098163442663548678}
-  - component: {fileID: 7310718339064069973}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Nose
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -540,20 +539,6 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
---- !u!64 &7310718339064069973
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 635605081623330823}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 1
-  m_CookingOptions: 14
-  m_Mesh: {fileID: 0}
 --- !u!1 &7000626545497380054
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,9 +549,10 @@ GameObject:
   m_Component:
   - component: {fileID: 5585346147927747515}
   - component: {fileID: 6830832149033496344}
+  - component: {fileID: -3849524841931030869}
   - component: {fileID: 4967636217437601361}
   - component: {fileID: 7143726325282084983}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Player1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -601,9 +587,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactEnabled: 1
-  allowStack: 0
-  gravityY: -9.8
+  allowGroundable: 0
+  objectWeight: 1
   objectMass: 1
+  terrainOffsetAllowedDistance: 0.15
+  interactiveOffsetDetection: 0.4
   canClimb: 1
   canDescend: 1
   canFall: 0
@@ -613,9 +601,23 @@ MonoBehaviour:
   walkableOnly: 1
   fallThreshold: 0.5
   frontCollisionHeight: 0.9
+  movableRayOffsetYIncrement: 0.6
   appliedForce: 1
   speed: 5
-  moveTolerance: 0.09
+  driveSpeed: 2.5
+  moveTolerance: 0.07
+--- !u!114 &-3849524841931030869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000626545497380054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc72df33631ca4ee69f86b66c2b28a08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4967636217437601361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,13 +641,13 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 1.1
+  m_Height: 1.05
   m_Radius: 0.4
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!1 &9110120798299140518
 GameObject:
   m_ObjectHideFlags: 0
@@ -658,7 +660,8 @@ GameObject:
   - component: {fileID: 8755243761792407751}
   - component: {fileID: 4475492300583098273}
   - component: {fileID: 8953567579923630185}
-  m_Layer: 0
+  - component: {fileID: 2303888199422502154}
+  m_Layer: 10
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -673,7 +676,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9110120798299140518}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.6, z: 0}
   m_LocalScale: {x: 0.8, y: 0.6, z: 0.8}
   m_Children:
   - {fileID: 545152364081834695}
@@ -742,6 +745,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2303888199422502154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9110120798299140518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27e9f93a73b24ddc86165aa5f6dea0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reference: 0
 --- !u!1001 &549261398645512741
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -808,6 +824,10 @@ PrefabInstance:
     - target: {fileID: 1760294339278588, guid: bef32c889e302ca49aa812313880ff98, type: 3}
       propertyPath: m_Name
       value: PREFAB_Hat_Party
+      objectReference: {fileID: 0}
+    - target: {fileID: 1760294339278588, guid: bef32c889e302ca49aa812313880ff98, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bef32c889e302ca49aa812313880ff98, type: 3}

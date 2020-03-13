@@ -1,32 +1,22 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using ConstantsAndEnums;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(CharacterController))]
+public class MovableObject : PhysicalObject {
 
-public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
-  //layer masks
-  //TODO: Move this to Global world controller
-  private static readonly int terrainLayerMask = 1 << 8; //hit terrain only
-  private static readonly int staticLayerMask = 1 << 9; //hit static objects only
-  private static readonly int interactableLayerMask = 1 << 10; //hit interactable objects only
-  public float gravityY = -9.8f;
   public float objectMass = 1.0f;
-  //public bool showGravityDebug = false;
+
+  public float terrainOffsetAllowedDistance = 0.15f;
+  public float interactiveOffsetDetection = 0.4f;
+
+  private bool movementPaused = false;
+  private bool pushPullTriggered;
 
   //constants
   private static float nextPositionRayLengthAddition = 1.0f; //how much (below ground) should ray test for next position
-  private static float standPositionRayLengthAddition = 0.25f; //how much (below ground) should ray test for current position
-  public enum GroundOptions { Terrain, Interactable, Fall };
-  public enum GroundPositions { Standing, Target };
-
-  //direction constants
-  public enum Direction { Up, Down, Right, Left };
-  private Vector3 up = Vector3.zero;
-  private Vector3 right = new Vector3(0, 90, 0);
-  private Vector3 down = new Vector3(0, 180, 0);
-  private Vector3 left = new Vector3(0, 270, 0);
+  private static float standPositionRayLengthAddition = 0.7f; //how much (below ground) should ray test for current position
 
   //direction & position
   private Vector3 currentDirection;
@@ -49,20 +39,20 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
   //fall threshold value
   public float fallThreshold = 0.5f; //distance (from ground) to detect ground or fall
   public float frontCollisionHeight = 0.9f; //height (from ground) for front collision ray
+  public float movableRayOffsetYIncrement = 0f; //how much y-axis should be moved to set collision detection rays
 
   //applied force
   public float appliedForce = 0.0f; //force to be applied when hitting moveble objects
 
   //speed & taolerance
   public float speed = 5f; //moving speed
+  public float driveSpeed = 2.5f;
   public float moveTolerance = 0.07f;
 
-  //controller
-  private CharacterController controller;
-
   //movements
-  private Queue<Vector3> pendingMovements;
+  private Queue<PendingMovement> pendingMovements;
   private Vector3 currentDestination;
+  private PendingMovement currentMovement;
 
   //attempt testing
   private bool resolvingAttempt;
@@ -73,10 +63,13 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
   private GroundOptions targetGroundType;
   private float targetGroundHitDistance;
 
+
   //---MonoBehaviour Cycle---
   void Start() {
-    pendingMovements = new Queue<Vector3>();
-    currentDirection = up;
+    base.Start();
+
+    pendingMovements = new Queue<PendingMovement>();
+    currentDirection = Constants.StepUp;
     currentDestination = transform.position;
     resolvingAttempt = false;
     //
@@ -87,31 +80,41 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     objectHeight = collider.bounds.size.y;
     objectXWidth = collider.bounds.size.x;
     objectZWidth = collider.bounds.size.z;
-    //
-    controller = GetComponent<CharacterController>();
+
   }
 
   // Update is called once per frame
-  void FixedUpdate() {
+  new void FixedUpdate() {
     ResolvePendingMovements();
+    base.FixedUpdate();
   }
 
 
   //---Move Object---
   //attempt to move object in specified direction
-  public bool MoveAttempt(Direction direction, float receivedForce = 0.0f) {
+  public bool MoveAttempt(Direction direction, float receivedForce = 0.0f, bool moveGenerator = false) {
     resolvingAttempt = true;
+    pushPullTriggered = false;
     testPosition = transform.position;
     switch(direction) {
-      case Direction.Up: currentDirection = up; testPosition += Vector3.forward; break;
-      case Direction.Down: currentDirection = down; testPosition += Vector3.back; break;
-      case Direction.Right: currentDirection = right; testPosition += Vector3.right; break;
-      case Direction.Left: currentDirection = left; testPosition += Vector3.left; break;
+      case Direction.Up: currentDirection = Constants.StepUp; testPosition += Vector3.forward; break;
+      case Direction.Down: currentDirection = Constants.StepDown; testPosition += Vector3.back; break;
+      case Direction.Right: currentDirection = Constants.StepRight; testPosition += Vector3.right; break;
+      case Direction.Left: currentDirection = Constants.StepLeft; testPosition += Vector3.left; break;
     }
 
     //adjust to .5 position
     testPosition.x = (float)Math.Round(testPosition.x * 2) / 2;
     testPosition.z = (float)Math.Round(testPosition.z * 2) / 2;
+
+    //test force if it's a push/pull
+    if(!moveGenerator) {
+      if(receivedForce < objectMass) {
+        //Debug.Log("No enough force for " + transform.name);
+        resolvingAttempt = false;
+        return false;
+      }
+    }
 
     //rotation
     if(shouldRotate) {
@@ -122,10 +125,18 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     SetGroundByPosition(GroundPositions.Standing, transform.position, standPositionRayLengthAddition);
     SetGroundByPosition(GroundPositions.Target, testPosition, nextPositionRayLengthAddition);
 
+    //Debug.Log("--ST:" + standingGroundType + "    --TG:" + targetGroundType + "     --for: " + transform.name);
+
+    //world verification
+    if(!interactions.IsMovementAllowed(transform.position, direction)) {
+      //Debug.Log("Position+Direction is blocked! for " + transform.name);
+      resolvingAttempt = false;
+      return false;
+    }
     //terrain verification
     //1. fall
     if(targetGroundType == GroundOptions.Fall && !canFall) {
-      Debug.Log("No fall");
+      //Debug.Log("No fall for " + transform.name);
       resolvingAttempt = false;
       return false;
     }
@@ -133,14 +144,14 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     if(targetGroundType == GroundOptions.Terrain) {
       TerrainPrefabData targetTerrainData = targetGround.gameObject.GetComponent<TerrainPrefabData>();
       if(!targetTerrainData.walkable && walkableOnly) {
-        Debug.Log("Walkableonly");
+        //Debug.Log("Walkableonly for " + transform.name);
         resolvingAttempt = false;
         return false;
       }
     }
     //3. front collision
     if(IsFrontGroundHit(direction)) {
-      Debug.Log("Front collision");
+      //Debug.Log("Front collision for " + transform.name);
       resolvingAttempt = false;
       return false;
     }
@@ -148,21 +159,22 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     if(targetGroundType == GroundOptions.Terrain) {
       TerrainPrefabData targetTerrainData = targetGround.gameObject.GetComponent<TerrainPrefabData>();
       if(targetTerrainData.isRamp && targetGroundHitDistance < standingGroundHitDistance && !canClimb) {
-        Debug.Log("No climb");
+        //Debug.Log("No climb for " + transform.name);
         resolvingAttempt = false;
         return false;
       }
       if(targetTerrainData.isRamp && targetGroundHitDistance > standingGroundHitDistance && !canDescend) {
-        Debug.Log("No descend");
+        //Debug.Log("No descend for " + transform.name);
         resolvingAttempt = false;
         return false;
       }
     }
     //5.IO stack
     if(targetGroundType == GroundOptions.Interactable) {
-      InteractableObject targetInteractableData = targetGround.gameObject.GetComponent<InteractableObject>();
-      if(!targetInteractableData.allowStack) {
-        Debug.Log("No IO stack");
+      GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(targetGround.gameObject);
+      MovableObject targetInteractableData = ioObject.GetComponent<MovableObject>();
+      if(!targetInteractableData.allowGroundable) {
+        //Debug.Log("No IO stack for " + transform.name);
         resolvingAttempt = false;
         return false;
       }
@@ -180,38 +192,42 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
         arriveDirection = targetTerrainData.arriveDirection;
       }
       if(!TerrainAllowsTransition(departDirection, arriveDirection, currentDirection)) {
-        Debug.Log("No transition allowed");
+        //Debug.Log("No transition allowed for " + transform.name);
         resolvingAttempt = false;
         return false;
       }
     }
 
     //static objects verification
-    if(IsStaticObjectBlockingMovement(transform.position, direction, shouldRotate)) {
-      Debug.Log("Static Object blocking");
+    if(IsStaticObjectBlockingMovement(transform.position + new Vector3(0f, movableRayOffsetYIncrement, 0f), direction, shouldRotate)) {
+      //Debug.Log("Static Object blocking for " + transform.name);
       resolvingAttempt = false;
       return false;
     }
-
-
-
-
-    //interactive objects/ground top-surface verification (step up verification)
-
-
 
     //interactive objects force transfer (push) (pull??)
-    if(AttemptMovingInteractiveObjectFail(direction, receivedForce)) {
-      Debug.Log("IO pushing fail");
+    if(AttemptMovingInteractiveObjectFail(direction, receivedForce, moveGenerator)) {
+      //Debug.Log("IO pushing fail for " + transform.name);
       resolvingAttempt = false;
       return false;
     }
 
-
-
-
     //enqueue movement
-    pendingMovements.Enqueue(testPosition);
+    PendingMovement movement = new PendingMovement {
+      destination = testPosition,
+      generator = moveGenerator,
+      pushPullTriggered = pushPullTriggered
+    };
+    if(targetGroundType == GroundOptions.Fall) {
+      movement.requiresPause = true;
+      movement.pausedPosition = transform.position;
+      movement.pausedDirection = direction;
+    }
+    if(movement.generator && movement.pushPullTriggered) {
+      movement.startMovePause = 120;
+    }
+
+    pendingMovements.Enqueue(movement);
 
     resolvingAttempt = false;
     return true;
@@ -219,108 +235,91 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
 
   //check if movement has finished
   public bool AcceptNewMovement() {
-    return Vector3.Distance(currentDestination, transform.position) <= moveTolerance && !resolvingAttempt;
+    //old condition to accept movements (stops continuos movements a little)
+    //return !resolvingAttempt && !movementPaused && Vector3.Distance(currentDestination, transform.position) <= moveTolerance;
+    return !resolvingAttempt && !movementPaused && Vector3.Distance(currentDestination, transform.position) <= 0.1f && pendingMovements.Count == 0;
   }
 
   private void ResolvePendingMovements() {
     if(pendingMovements.Count > 0 && Vector3.Distance(currentDestination, transform.position) <= moveTolerance) {
-      currentDestination = pendingMovements.Dequeue();
+      currentMovement = pendingMovements.Dequeue();
+      currentDestination = currentMovement.destination;
+      if(currentMovement.requiresPause) {
+        interactions.AddMovementPauseOverPosition(currentMovement.pausedPosition, currentMovement.pausedDirection, 700);
+      }
+      if(currentMovement.startMovePause > 0) {
+        movementPaused = true;
+        StartCoroutine(ClearMovementPause(currentMovement.startMovePause));
+      }
     }
-    //
-    //transform.position = Vector3.MoveTowards(transform.position, new Vector3(currentDestination.x, transform.position.y, currentDestination.z), speed * Time.deltaTime);
     currentDestination.y = transform.position.y;
-
-    //MoveTowardsTarget(currentDestination);
-
-    MoveToPoint();
+    if(!movementPaused) {
+      MoveToPoint();
+    }
   }
 
-  void MoveTowardsTarget(Vector3 target) {
-    var offset = target - transform.position;
-    //Get the difference.
-    if(offset.magnitude > moveTolerance) {
-      //If we're further away than .1 unit, move towards the target.
-      //The minimum allowable tolerance varies with the speed of the object and the framerate. 
-      // 2 * tolerance must be >= moveSpeed / framerate or the object will jump right over the stop.
-      offset = offset.normalized * speed;
+  private void MoveToPoint() {
+    if(Vector3.Distance(currentDestination, transform.position) < (moveTolerance + 0.01f)) {
+      transform.position = currentDestination;
     }
 
-    //add gravity
-    if(!controller.isGrounded) {
-      //offset.y -= gravity * Time.fixedDeltaTime;
-      offset += Physics.gravity;
-    }
-
-    controller.Move(offset * Time.fixedDeltaTime);
-  }
-
-  void MoveToPoint() {
     if((Vector3.Distance(currentDestination, transform.position) <= moveTolerance) && controller.isGrounded) {
+      if(currentMovement != null && currentMovement.endMovePause > 0) {
+        movementPaused = true;
+
+        StartCoroutine(ClearMovementPause(currentMovement.endMovePause));
+        currentMovement.endMovePause = 0;
+      }
       return;
     }
-    //if(currentDestination == transform.position && controller.isGrounded) {
-    //  return;
-    //}
+
+    float currentSpeed = (currentMovement != null && currentMovement.generator && !currentMovement.pushPullTriggered) ? speed : driveSpeed;
 
     Vector3 moveDiff = currentDestination - transform.position;
-    Vector3 moveDir = moveDiff.normalized * speed * Time.fixedDeltaTime;
-
-    //Vector3 grav = Physics.gravity * objectMass * Time.fixedDeltaTime;
-    Vector3 grav = new Vector3(0, gravityY * objectMass * Time.fixedDeltaTime, 0);
+    Vector3 moveDir = moveDiff.normalized * currentSpeed * Time.fixedDeltaTime;
 
     if(moveDir.sqrMagnitude < moveDiff.sqrMagnitude) {
-      //add gravity
-      if(!controller.isGrounded) {
-        moveDir += grav;
-        //if(showGravityDebug) {
-        //  Debug.Log("gravity1: " + grav + " moveDir: " + moveDir);
-        //}
-      }
-      Debug.Log("Moving to: " + currentDestination);
-      controller.Move(moveDir);
+      //controller.Move(moveDir);
+      objectMovements += moveDir;
     } else {
-
-      moveDiff = moveDiff * speed * Time.fixedDeltaTime;
-
-      if(!controller.isGrounded) {
-        moveDiff += grav;
-        //if(showGravityDebug) {
-        //  Debug.Log("gravity2: " + grav + " moveDiff: " + moveDiff);
-        //}
-      }
-      Debug.Log("Moving to: " + currentDestination);
-      controller.Move(moveDiff);
+      moveDiff = moveDiff * currentSpeed * Time.fixedDeltaTime;
+      //controller.Move(moveDiff);
+      objectMovements += moveDiff;
     }
   }
 
-
-
-
-
-
-
-
-
+  private IEnumerator ClearMovementPause(int pauseMs) {
+    yield return new WaitForSeconds(pauseMs / 1000f);
+    //
+    movementPaused = false;
+  }
 
   //set ground by specific position
   private void SetGroundByPosition(GroundPositions groundType, Vector3 testPosition, float terrainRayLengthAddition) {
+    testPosition += new Vector3(0f, movableRayOffsetYIncrement, 0f);
     Ray terrainRay = new Ray(testPosition, new Vector3(0, -1, 0)); //pointing down
     Ray interactiveObjRay = new Ray(testPosition, new Vector3(0, -1, 0)); //pointing down
     RaycastHit terrainHit;
     RaycastHit interactiveObjHit;
-    float rayLength = (objectHeight / 2) + terrainRayLengthAddition;
-    float fallDistance = (objectHeight / 2) + fallThreshold;
+    float rayLength = movableRayOffsetYIncrement + terrainRayLengthAddition;
+    float fallDistance = movableRayOffsetYIncrement + fallThreshold;
     //
-    Debug.DrawRay(terrainRay.origin, terrainRay.direction, Color.red);
-    Debug.DrawRay(terrainRay.origin, terrainRay.direction, Color.blue);
+    //Debug.DrawRay(terrainRay.origin, terrainRay.direction, Color.red);
+    //DrawRay(terrainRay.origin, terrainRay.direction, Color.blue);
     //
     bool terrainFirst = false;
     bool interactiveFirst = false;
-    bool hitsTerrain = Physics.Raycast(terrainRay, out terrainHit, rayLength, terrainLayerMask);
-    bool hitsInteractive = Physics.Raycast(interactiveObjRay, out interactiveObjHit, rayLength, interactableLayerMask);
+    bool hitsTerrain = Physics.Raycast(terrainRay, out terrainHit, rayLength, WorldController.StaticTerrainLayerMask);
+    bool hitsInteractive = Physics.Raycast(interactiveObjRay, out interactiveObjHit, rayLength, WorldController.IOPhysicalLayerMask);
+    hitsInteractive = hitsInteractive && interactiveObjHit.transform != transform; //not hit on itself
 
-    if(hitsTerrain || hitsInteractive) {
-      if(hitsTerrain && hitsInteractive) {
+    bool validHitsInteractive = false;
+    if(hitsInteractive) {
+      float stepDistance = interactiveObjHit.distance - movableRayOffsetYIncrement;
+      validHitsInteractive = stepDistance >= (terrainOffsetAllowedDistance * -1) && stepDistance <= terrainOffsetAllowedDistance;
+    }
+    if(hitsTerrain || validHitsInteractive) {
+      if(hitsTerrain && validHitsInteractive) {
         //define by distance
         if(terrainHit.distance < interactiveObjHit.distance) {
           terrainFirst = true;
@@ -335,7 +334,6 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     }
     if(terrainFirst) {
       TerrainPrefabData terrainData = terrainHit.transform.gameObject.GetComponent<TerrainPrefabData>();
-      //Debug.Log("Hit terrain at " + terrainHit.distance + " and fallDistance: " + fallDistance + " for: " + groundType);
       if(terrainHit.distance < fallDistance || (terrainData.walkable && terrainData.isRamp)) {
         if(groundType == GroundPositions.Standing) {
           standingGround = terrainHit.transform;
@@ -349,7 +347,6 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
         return;
       }
     } else if(interactiveFirst) {
-      //Debug.Log("Hit interactive at: " + interactiveObjHit.distance + " and fall: " + fallDistance + " for: " + groundType);
       if(interactiveObjHit.distance < fallDistance) {
         if(groundType == GroundPositions.Standing) {
           standingGround = interactiveObjHit.transform;
@@ -400,12 +397,12 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
         }
         break;
     }
-    Collider[] hitStaticObjectColliders = Physics.OverlapBox(origin, (dimension / 2), Quaternion.identity, staticLayerMask);
+    Collider[] hitStaticObjectColliders = Physics.OverlapBox(origin, (dimension / 2), Quaternion.identity, WorldController.StaticObjectLayerMask);
     return hitStaticObjectColliders.Length > 0;
   }
 
   private bool IsFrontGroundHit(Direction direction) {
-    Vector3 origin = transform.position - (new Vector3(0, (objectHeight / 2), 0)) + (new Vector3(0, frontCollisionHeight, 0));
+    Vector3 origin = transform.position + new Vector3(0f, movableRayOffsetYIncrement, 0f) - (new Vector3(0, (objectHeight / 2), 0)) + (new Vector3(0, frontCollisionHeight, 0));
     Vector3 rayDirection = Vector3.forward;
     switch(direction) {
       case Direction.Up: rayDirection = Vector3.forward; break;
@@ -417,15 +414,15 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     RaycastHit terrainHit;
     float rayLength = 0.7f;
     //Debug.DrawRay(terrainRay.origin, terrainRay.direction, Color.green);
-    if(Physics.Raycast(terrainRay, out terrainHit, rayLength, terrainLayerMask)) {
+    if(Physics.Raycast(terrainRay, out terrainHit, rayLength, WorldController.StaticTerrainLayerMask)) {
       return true;
     } else {
       return false;
     }
   }
 
-  private bool AttemptMovingInteractiveObjectFail(Direction direction, float receivedForce) {
-    Vector3 origin = transform.position - (new Vector3(0, (objectHeight / 2), 0)) + (new Vector3(0, 0.4f, 0));
+  private bool AttemptMovingInteractiveObjectFail(Direction direction, float receivedForce, bool moveGenerator) {
+    Vector3 origin = transform.position + new Vector3(0f, interactiveOffsetDetection, 0f);
     Vector3 rayDirection = Vector3.forward;
     switch(direction) {
       case Direction.Up: rayDirection = Vector3.forward; break;
@@ -436,12 +433,19 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
     Ray ioRay = new Ray(origin, rayDirection);
     RaycastHit ioHit;
     float rayLength = 1.0f;
-    Debug.DrawRay(ioRay.origin, ioRay.direction, Color.green);
-    if(Physics.Raycast(ioRay, out ioHit, rayLength, interactableLayerMask)) {
-      Debug.Log("IO found!!");
-      MovableObject movableObject = ioHit.transform.gameObject.GetComponent<MovableObject>(); //TODO: this may be IO but not movable
-      bool moved = movableObject.MoveAttempt(direction, receivedForce + appliedForce);
-      Debug.Log("IO moved:" + moved);
+    //Debug.DrawRay(ioRay.origin, ioRay.direction, Color.green);
+    if(Physics.Raycast(ioRay, out ioHit, rayLength, WorldController.IOPhysicalLayerMask)) {
+      GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(ioHit.transform.gameObject);
+      MovableObject movableObject = ioObject.GetComponent<MovableObject>(); //TODO: this may be IO but not movable
+      float outForce = appliedForce;
+      if(!moveGenerator && allowTransfer) {
+        outForce += (receivedForce - objectMass);
+      }
+      bool moved = movableObject.MoveAttempt(direction, outForce);
+      if(moved) {
+        pushPullTriggered = true;
+        interactions.AddMovementPauseOverPosition(transform.position, direction, 1000);
+      }
       return !moved;
     } else {
       return false;
@@ -449,76 +453,16 @@ public class MovableObject : InteractableObject/*, MovableObjectTarget*/ {
   }
 
   private bool TerrainAllowsTransition(int departDirection, int arriveDirection, Vector3 direction) {
-    if(departDirection == 1 && (direction == right || direction == left)) { //vertical
+    if(departDirection == 1 && (direction == Constants.StepRight || direction == Constants.StepLeft)) { //vertical
       return false;
-    } else if(departDirection == 2 && (direction == up || direction == down)) { //horizontal
+    } else if(departDirection == 2 && (direction == Constants.StepUp || direction == Constants.StepDown)) { //horizontal
       return false;
-    } else if(arriveDirection == 1 && (direction == right || direction == left)) { //vertical
+    } else if(arriveDirection == 1 && (direction == Constants.StepRight || direction == Constants.StepLeft)) { //vertical
       return false;
-    } else if(arriveDirection == 2 && (direction == up || direction == down)) { //horizontal
+    } else if(arriveDirection == 2 && (direction == Constants.StepUp || direction == Constants.StepDown)) { //horizontal
       return false;
     }
     return true;
   }
 
-
-
-
-  //private float positionRayLength = 1.5f;
-
-  //public void PhysicPush(GameObject generator, Vector3 nextPosition) {
-  //  Debug.Log("PhysicPush CALLED");
-  //  Vector3 testPosition = transform.position + nextPosition;
-  //  //detect if push can be done
-  //  (RaycastHit standingHit, RaycastHit nextPositionHit) = GetTerrainTransitionObjects(testPosition);
-  //  //if(nextPositionHit.)
-  //  //Debug.Log("standingHit " + standingHit.transform.gameObject.name);
-
-  //  //terrain accepts push
-  //  //valid terrain change
-  //  //no blocker objects
-  //  //or
-  //  //there's a hole (no terrain)
-  //  //no blocker objects
-
-  //  ExecuteEvents.Execute<InteractableActionGenerator>(generator, null, (x, y) => x.PhysicPushResult(true));
-  //}
-
-  //private (RaycastHit, RaycastHit) GetTerrainTransitionObjects(Vector3 testPosition) {
-  //  int layerMask = 1 << 8; //hit terrain only
-  //  Ray standingRay = new Ray(transform.position + new Vector3(0, 0.1f, 0), new Vector3(0, -1, 0));
-  //  Ray nextPositionRay = new Ray(testPosition + new Vector3(0, 0.1f, 0), new Vector3(0, -1, 0));
-  //  RaycastHit standingHit;
-  //  RaycastHit nextPositionHit = new RaycastHit();
-  //  Debug.DrawRay(standingRay.origin, standingRay.direction, Color.red);
-  //  Debug.DrawRay(nextPositionRay.origin, nextPositionRay.direction, Color.green);
-
-  //  //Physics.Raycast(nextPositionRay, out nextPositionHit, positionRayLength, layerMask);
-
-
-
-  //  if(Physics.Raycast(standingRay, out standingHit, positionRayLength, layerMask)) {
-  //    Debug.Log("here " + standingHit);
-  //    if(Physics.Raycast(nextPositionRay, out nextPositionHit, positionRayLength, layerMask)) {
-
-  //      //Debug.Log("Did Hit " + nextPositionHit.distance);
-  //      //TerrainPrefabData standingData = standingHit.transform.gameObject.GetComponent<TerrainPrefabData>();
-  //      //TerrainPrefabData nextPositionData = nextPositionHit.transform.gameObject.GetComponent<TerrainPrefabData>();
-  //      //next is walkable
-  //      //if(nextPositionData.walkable) {
-  //      //  //(current accepts out direction and next accepts in direction) or current and next are same object
-  //      //  if(TerrainAllowsTransition(standingData, nextPositionData, direction) || GameObject.ReferenceEquals(standingHit.transform.gameObject, nextPositionHit.transform.gameObject)) {
-  //      //    return true;
-  //      //  }
-  //      //}
-  //    }
-  //    Debug.Log("there " + nextPositionHit.transform == null);
-  //  }
-  //  return (standingHit, nextPositionHit);
-  //}
-
 }
-
-//public interface MovableObjectTarget : IEventSystemHandler {
-//  void PhysicPush(GameObject generator, Vector3 nextPosition);
-//}
