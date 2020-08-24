@@ -21,4 +21,15 @@ public class InteractableObjectsUtils {
   public static bool IsPhysicalObject(GameObject gameObject) {
     return gameObject.GetComponent<PhysicalObject>() != null;
   }
+
+  public static Collider GetMainCollider(Transform transform) {
+    GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(transform.gameObject);
+    Collider collider = ioObject.GetComponent<Collider>();
+    if(!collider || collider is CharacterController) {
+      collider = ioObject.transform.GetChild(0).GetComponent<Collider>();
+      return collider;
+    } else {
+      return collider;
+    }
+  }
 }

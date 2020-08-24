@@ -46,17 +46,18 @@ public class PhysicalObject : InteractableObject {
 
   //Feature: Chained Weight (allows any object to notyfy what is its weight plus any weight from other objects stacked on top)
   public float ChainedWeight() {
+    Debug.Log("ChainedWeight for " + transform.name);
     if(allowGroundable) {
       RaycastHit stackedObjectHit;
-      Ray stackedObjectRay = new Ray(transform.position, new Vector3(0, 1, 0)); //pointing up
-      Collider collider = transform.gameObject.GetComponent<Collider>();
-      if(!collider) {
-        collider = transform.GetChild(0).GetComponent<Collider>();
-      }
-      float rayLength = collider.bounds.size.y + 0.5f;
+      Collider collider = InteractableObjectsUtils.GetMainCollider(transform);
+      Ray stackedObjectRay = new Ray(transform.position + new Vector3(0, collider.bounds.size.y, 0), new Vector3(0, 1, 0)); //pointing up
+      float rayLength = 0.25f;
+      Debug.Log("rayLength " + rayLength + " rayOffsetY " + collider.bounds.size.y);
+      Debug.DrawRay(stackedObjectRay.origin, stackedObjectRay.direction, Color.red);
       bool hitsInteractive = Physics.Raycast(stackedObjectRay, out stackedObjectHit, rayLength, WorldController.IOPhysicalLayerMask);
       //if hits, test IO is physical and request chained weight
       if(hitsInteractive) {
+        Debug.Log("HIT!! " + stackedObjectHit.transform.name);
         GameObject ioObject = InteractableObjectsUtils.GetInteractableObject(stackedObjectHit.transform.gameObject);
         if(InteractableObjectsUtils.IsPhysicalObject(ioObject)) {
           PhysicalObject nextObject = ioObject.GetComponent<PhysicalObject>();

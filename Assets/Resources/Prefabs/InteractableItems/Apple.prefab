@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9059866361810012122}
   - component: {fileID: 1831071826696612234}
   - component: {fileID: 5684049195911731985}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -336,7 +336,8 @@ GameObject:
   - component: {fileID: 284009470925051601}
   - component: {fileID: 8624506363052886789}
   - component: {fileID: 3353661550854512386}
-  m_Layer: 0
+  - component: {fileID: 3653421087756473025}
+  m_Layer: 10
   m_Name: Apple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -389,8 +390,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactEnabled: 1
-  allowGroundable: 1
+  allowGroundable: 0
   objectWeight: 0.25
+  floatingAnimator: {fileID: 3653421087756473025}
+--- !u!95 &3653421087756473025
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4941243302542158647}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b1db4b08dabf94b45ba320344599e71a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &6451356772285891248
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,7 +425,7 @@ GameObject:
   - component: {fileID: 2740107453780250893}
   - component: {fileID: 8411679854440228228}
   - component: {fileID: 2893524092100874340}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Leaf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
