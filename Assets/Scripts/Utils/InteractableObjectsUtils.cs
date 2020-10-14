@@ -14,7 +14,7 @@ public class InteractableObjectsUtils {
 
   //tells a collider is PlayerController or not
   public static bool CollideWithPlayer(GameObject gameObject) {
-    return gameObject.GetComponent<PlayerController>() != null;
+    return gameObject.GetComponent<PlayerController>() != null || gameObject.GetComponent<PlayerControllerPOC1>() != null;
   }
 
   //tells a collider is a PhysicalObject or not
@@ -31,5 +31,9 @@ public class InteractableObjectsUtils {
     } else {
       return collider;
     }
+  }
+
+  public static bool CollideWithResourceRB(GameObject gameObject) {
+    return gameObject.GetComponent<ResourcePOC1RB>() != null;
   }
 }

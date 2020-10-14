@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if (UNITY_EDITOR)
+
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -6,7 +8,13 @@ using System.IO;
 public class MapGenerator : MonoBehaviour {
   public static GameObject[] prefabs;
 
-  public void GenerateMapCollection(string collectionName) {
+  private int currentTileHeight = 2;
+
+  public void GenerateMapCollection(string collectionName, int tileSizeSelected) {
+    //check tile size
+    if (tileSizeSelected == 1) {
+      currentTileHeight = 1;
+    }
     //load prefabs
     prefabs = Resources.LoadAll<GameObject>("Prefabs");
     //load collection
@@ -40,7 +48,7 @@ public class MapGenerator : MonoBehaviour {
     //generate each piece
     foreach(MapTile tile in layer.construction) {
       currentPrefab = MapGeneratorUtilities.FindPrefab(prefabs, tile.key);
-      if(currentPrefab != null) {
+      if (currentPrefab != null) {
         if(tile.direction != 0) {
           GenerateMapTileWithRotation(tile, currentPrefab, layer, map, parent);
         } else {
@@ -58,7 +66,7 @@ public class MapGenerator : MonoBehaviour {
   }
 
   private void GenerateMapTileWithoutRotation(MapTile tile, GameObject prefab, Layer layer, Map map, GameObject parent) {
-    GameObject mapTile = Instantiate(prefab, MapGeneratorUtilities.GetMapTilePositionInWorld(tile, prefab, layer.yOrder, map.startX, map.startZ, false), Quaternion.identity);
+    GameObject mapTile = Instantiate(prefab, MapGeneratorUtilities.GetMapTilePositionInWorld(tile, prefab, layer.yOrder, map.startX, map.startZ, false, currentTileHeight), Quaternion.identity);
     mapTile.layer = 8; //terrain
     mapTile.isStatic = true;
     //allowed directions
@@ -80,7 +88,7 @@ public class MapGenerator : MonoBehaviour {
     //allowed directions
     MapGeneratorUtilities.SetMapTileAllowedDirections(tile, prefab, mapTile);
     //reposition
-    mapTile.transform.localPosition = MapGeneratorUtilities.GetMapTilePositionInWorld(tile, prefab, layer.yOrder, map.startX, map.startZ, true);
+    mapTile.transform.localPosition = MapGeneratorUtilities.GetMapTilePositionInWorld(tile, prefab, layer.yOrder, map.startX, map.startZ, true, currentTileHeight);
     //add to mpc
     mapTile.transform.parent = parent.transform;
   }
@@ -91,7 +99,7 @@ public class MapGenerator : MonoBehaviour {
     mapItem.isStatic = true;
     mapItem.transform.localScale = MapGeneratorUtilities.GetMapItemScale(item, prefab);
     mapItem.transform.localRotation = MapGeneratorUtilities.GetMapItemRotation(item, prefab);
-    mapItem.transform.localPosition = MapGeneratorUtilities.GetMapItemPositionInWorld(item, prefab, layer.yOrder, map.startX, map.startZ);
+    mapItem.transform.localPosition = MapGeneratorUtilities.GetMapItemPositionInWorld(item, prefab, layer.yOrder, map.startX, map.startZ, currentTileHeight);
     mapItem.transform.parent = itemsObj.transform;
   }
 }
@@ -100,7 +108,9 @@ public class MapGenerator : MonoBehaviour {
 public class MapGeneratorEditor : Editor {
   private string mapsPath;
   private int selectedMapCollection = 0;
+  private int selectedTileSize = 0;
   private List<string> availableMapCollections = new List<string>();
+  private List<string> tileSizes = new List<string>() { "1x1x2", "1x1x1" };
   private FileInfo[] mapCollectionsInfo;
 
   public override void OnInspectorGUI() {
@@ -114,9 +124,14 @@ public class MapGeneratorEditor : Editor {
     //collection selector
     selectedMapCollection = EditorGUILayout.Popup(selectedMapCollection, availableMapCollections.ToArray());
 
+    //tile size
+    selectedTileSize = EditorGUILayout.Popup(selectedTileSize, tileSizes.ToArray());
+
     //generate button
-    if(GUILayout.Button("Generate Map")) {
-      ((MapGenerator)target).GenerateMapCollection(availableMapCollections[selectedMapCollection]);
+    if (GUILayout.Button("Generate Map")) {
+      ((MapGenerator)target).GenerateMapCollection(availableMapCollections[selectedMapCollection], selectedTileSize);
     }
   }
 }
+
+#endif

@@ -8,6 +8,9 @@ public class InteractionController : MonoBehaviour {
 
   private List<PausedMovement> pausedMovements = new List<PausedMovement>();
 
+  public bool faucetsOn = false;
+  public bool togglingFaucets = false;
+
   private void Awake() {
     if(Instance != null && Instance != this) {
       Destroy(this.gameObject);
@@ -40,5 +43,17 @@ public class InteractionController : MonoBehaviour {
     if(movement != null) {
       pausedMovements.Remove(movement);
     }
+  }
+
+  public void ToggleFaucets() {
+    togglingFaucets = true;
+    faucetsOn = !faucetsOn;
+    StartCoroutine(ClearTogglingFaucet());
+  }
+
+  private IEnumerator ClearTogglingFaucet() {
+    yield return new WaitForSeconds(400 / 1000f);
+    //
+    togglingFaucets = false;
   }
 }

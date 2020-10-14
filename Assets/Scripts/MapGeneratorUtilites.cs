@@ -16,10 +16,10 @@ public static class MapGeneratorUtilities {
     return JsonUtility.FromJson<Map>(mapString);
   }
 
-  public static Vector3 GetMapTilePositionInWorld(MapTile tile, GameObject prefab, float layer, int mapOffsetX, int mapOffsetZ, bool rotated) {
+  public static Vector3 GetMapTilePositionInWorld(MapTile tile, GameObject prefab, float layer, int mapOffsetX, int mapOffsetZ, bool rotated, int tileHeight) {
     float x = mapOffsetX + tile.x;
     float z = mapOffsetZ + tile.z;
-    float y = ((layer * 2) - 2) + prefab.transform.localPosition.y; //2=layer height
+    float y = ((layer * tileHeight) - tileHeight) + prefab.transform.localPosition.y;
     if(rotated) {
       switch(tile.direction) {
         case 3:
@@ -41,10 +41,10 @@ public static class MapGeneratorUtilities {
     return new Vector3(x, y, z);
   }
 
-  public static Vector3 GetMapItemPositionInWorld(MapItem item, GameObject prefab, float layer, int mapOffsetX, int mapOffsetZ) {
+  public static Vector3 GetMapItemPositionInWorld(MapItem item, GameObject prefab, float layer, int mapOffsetX, int mapOffsetZ, int tileHeight) {
     float x = mapOffsetX + item.x + 0.5f + item.offset.x; //half tile
     float z = mapOffsetZ + item.z + 0.5f + item.offset.z; //half tile
-    float y = (layer * 2) + prefab.transform.localPosition.y + item.offset.y; //2=layer height
+    float y = (layer * tileHeight) + prefab.transform.localPosition.y + item.offset.y;
     return new Vector3(x, y, z);
   }
 

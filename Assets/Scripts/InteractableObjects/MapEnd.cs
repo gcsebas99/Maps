@@ -8,6 +8,10 @@ public class MapEnd : InteractableObject {
   private BoxCollider collider;
   //colliding
   private bool isColliding;
+  //
+  public bool enableWhenLevelIsCompleted = false;
+  private bool levelCompleted = false;
+
   //level to move
   public string moveToLevel;
 
@@ -20,6 +24,17 @@ public class MapEnd : InteractableObject {
 
     // tracking colliding works only for trigger areas that allows one specific object at a time
     isColliding = false;
+
+    if(enableWhenLevelIsCompleted) {
+      SetEnable(false);
+    }
+  }
+
+  void Update() {
+    if(enableWhenLevelIsCompleted && world.levelCompleted != levelCompleted && world.levelCompleted) {
+      levelCompleted = world.levelCompleted;
+      SetEnable(true);
+    }
   }
 
   private void OnTriggerEnter(Collider other) {
@@ -38,5 +53,10 @@ public class MapEnd : InteractableObject {
     if(InteractableObjectsUtils.CollideWithPlayer(ioObject)) {
       isColliding = false;
     }
+  }
+
+  private void SetEnable(bool status) {
+    GetComponent<Renderer>().enabled = status;
+    GetComponent<BoxCollider>().enabled = status;
   }
 }
