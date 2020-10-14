@@ -1,23 +1,26 @@
-﻿<Properties StartupConfiguration="{FBC5BE72-1F12-C80A-2CF0-6947C9FF5FE8}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Utils/InteractableObjectsUtils.cs">
+﻿<Properties StartupConfiguration="{EB0B020D-062D-C88A-9E2D-2E16128839C6}|Unit Tests">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/InteractableObjects/ResourceSinkPOC1.cs">
     <Files>
-      <File FileName="Assets/Scripts/InteractableObjects/MovableObject.cs" Line="307" Column="73" />
-      <File FileName="Assets/Scripts/InteractableObjects/PhysicalObject.cs" Line="60" Column="42" />
-      <File FileName="Assets/Scripts/Utils/InteractableObjectsUtils.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Player/PlayerControllerPOC1.cs" Line="37" Column="21" />
+      <File FileName="Assets/Scripts/InteractableObjects/MapEnd.cs" Line="36" Column="23" />
+      <File FileName="Assets/Scripts/Controllers/WorldController.cs" Line="21" Column="24" />
+      <File FileName="Assets/Scripts/InteractableObjects/ResourceFaucetPOC1.cs" Line="106" Column="18" />
+      <File FileName="Assets/Scripts/InteractableObjects/ResourceSinkPOC1.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Maps" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="Scripts" expanded="True">
-                <Node name="Camera" expanded="True" />
-                <Node name="Controllers" expanded="True" />
-                <Node name="InteractableObjects" expanded="True" />
-                <Node name="Others" expanded="True" />
-                <Node name="Player" expanded="True" />
-                <Node name="Utils" expanded="True">
-                  <Node name="InteractableObjectsUtils.cs" selected="True" />
+            <Node name="Assembly-CSharp" expanded="True">
+              <Node name="Assets" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Controllers" expanded="True" />
+                  <Node name="InteractableObjects" expanded="True">
+                    <Node name="ResourceSinkPOC1.cs" selected="True" />
+                  </Node>
+                  <Node name="Others" expanded="True" />
+                  <Node name="Player" expanded="True" />
+                  <Node name="Utils" expanded="True" />
                 </Node>
               </Node>
             </Node>
@@ -28,9 +31,9 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="5954f10d-a241-44e6-9a8e-847b1cce1f86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp-Editor-firstpass PreferredExecutionTarget="MonoDevelop.Default" />
 </Properties>
